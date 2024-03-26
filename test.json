@@ -1,0 +1,13 @@
+{
+    "open": "{{open}}",
+    "high": "{{high}}",
+    "low": "{{low}}",
+    "close": "{{close}}",
+    "exchange": "{{exchange}}",
+    "ticker": "{{ticker}}",
+    "volume": "{{volume}}",
+    "time": "{{time}}",
+    "timenow": "{{timenow}}",
+    "1": "{{plot_0}}",
+    "2": "{{plot_1}}"
+}
