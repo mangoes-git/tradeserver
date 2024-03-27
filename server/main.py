@@ -1,13 +1,13 @@
-from typing import Union
+from typing import Union, Optional
 
 from fastapi import FastAPI
 from ib_connection import IBConnection
 
 from models import TVWebhook, Securities
-from ib_connection import submit_trade
+from ib_connection import IBConnection
 
 app = FastAPI()
-ib_api = IBConnection
+ib = IBConnection()
 
 
 @app.get("/")
@@ -20,9 +20,14 @@ def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
 
 
+@app.get("/positions/")
+def get_positions():
+    return ib.get_positions()
+
+
 @app.post("/webhook")
-def handle_webhook(data: TVWebhook):
-    trade = ib_api.submit_trade(
+async def handle_webhook(data: TVWebhook):
+    trade = await ib.submit_trade(
         sec_type="FUT",
         symbol=data.symbol,
         exchange=data.exchange,

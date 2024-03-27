@@ -1,4 +1,6 @@
-from ib_insync import IB, Future, MarketOrder
+from typing import List
+
+from ib_insync import IB, Future, MarketOrder, Trade
 import nest_asyncio
 
 from models import TradeActions, Securities
@@ -11,7 +13,7 @@ class IBConnection:
         self._ib = IB()
         self._ib.connect("localhost", 4002, clientId=123, timeout=10)
 
-    def submit_trade(
+    async def submit_trade(
         self,
         sec_type: str,
         symbol: str,
@@ -30,11 +32,11 @@ class IBConnection:
             currency=currency,
         )
         order = MarketOrder(str(action), quantity)
-        ib.qualifyContracts(contract)
-        trade = ib.placeOrder(contract, order)
+        await self._ib.qualifyContractsAsync(contract)
+        trade = self._ib.placeOrder(contract, order)
         return trade
 
-    def perform_trade(
+    async def perform_trade(
         self,
         sec_type: str,
         symbol: str,
@@ -53,9 +55,18 @@ class IBConnection:
             currency=currency,
         )
         order = MarketOrder(str(action), quantity)
-        ib.qualifyContracts(contract)
-        trade = ib.placeOrder(contract, order)
+        await self._ib.qualifyContractsAsync(contract)
+        trade = self._ib.placeOrder(contract, order)
         while not trade.isDone():
-            # if there is an error returned by IB this loop will not exit.
-            ib.waitOnUpdate()
+            self._ib.waitOnUpdate(2)
         return trade
+
+    def get_positions(self, account: str = "") -> List[dict]:
+        positions = self._ib.positions(account)
+        result = []
+        for p in positions:
+            curr = {}
+            for k, v in zip(p._fields, p):
+                curr[k] = str(v)
+            result.append(curr)
+        return result
