@@ -4,6 +4,7 @@ from ib_insync import IB, Future, MarketOrder, Trade
 import nest_asyncio
 
 from models import TradeActions, Securities
+from env import IBC_HOST, IBC_PORT, CLIENT_ID, IBC_CONN_TIMEOUT
 
 nest_asyncio.apply()
 
@@ -11,7 +12,12 @@ nest_asyncio.apply()
 class IBConnection:
     def __init__(self):
         self._ib = IB()
-        self._ib.connect("ib-gateway", 4004, clientId=123, timeout=60)
+        self._ib.connect(
+            IBC_HOST,
+            IBC_PORT,
+            clientId=CLIENT_ID,
+            timeout=IBC_CONN_TIMEOUT,
+        )
 
     async def submit_trade(
         self,
