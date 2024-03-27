@@ -11,7 +11,7 @@ nest_asyncio.apply()
 class IBConnection:
     def __init__(self):
         self._ib = IB()
-        self._ib.connect("localhost", 4002, clientId=123, timeout=10)
+        self._ib.connect("ib-gateway", 4004, clientId=123, timeout=60)
 
     async def submit_trade(
         self,
