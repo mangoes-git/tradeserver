@@ -25,8 +25,9 @@ class IBConnection:
         symbol: str,
         exchange: str,
         currency: str,
-        action: TradeActions,
+        action: str,
         quantity: int,
+        last_trade_date_or_month: str = "",
     ):
         """
         Submit a trade, does not wait until the trade is done (either
@@ -36,8 +37,9 @@ class IBConnection:
             symbol=symbol,
             exchange=exchange,
             currency=currency,
+            lastTradeDateOrContractMonth=last_trade_date_or_month,
         )
-        order = MarketOrder(str(action), quantity)
+        order = MarketOrder(action, quantity)
         await self._ib.qualifyContractsAsync(contract)
         trade = self._ib.placeOrder(contract, order)
         return trade
@@ -48,8 +50,9 @@ class IBConnection:
         symbol: str,
         exchange: str,
         currency: str,
-        action: TradeActions,
+        action: str,
         quantity: int,
+        last_trade_date_or_month: str = "",
     ):
         """
         Submit a trade and wait until it is done (either completely
@@ -59,8 +62,9 @@ class IBConnection:
             symbol=symbol,
             exchange=exchange,
             currency=currency,
+            lastTradeDateOrContractMonth=last_trade_date_or_month,
         )
-        order = MarketOrder(str(action), quantity)
+        order = MarketOrder(action, quantity)
         await self._ib.qualifyContractsAsync(contract)
         trade = self._ib.placeOrder(contract, order)
         while not trade.isDone():
