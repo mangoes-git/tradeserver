@@ -20,6 +20,36 @@ def get_positions():
     return ib.get_positions()
 
 
+@app.get("/account/summary")
+async def get_account_summary():
+    return await ib.get_summary()
+
+
+@app.get("/trades/open")
+def get_open_trades():
+    return ib.get_open_trades()
+
+
+@app.get("/orders/open")
+def get_open_orders():
+    return ib.get_open_orders()
+
+
+@app.get("/status")
+def get_ib_connection_status():
+    try:
+        connection_stats = ib.client.connectionStats()
+    except Exception:
+        return {
+            "is_connected": False,
+        }
+
+    return {
+        "is_connected": ib.is_connected(),
+        "stats": connection_stats._asdict(),
+    }
+
+
 @app.post("/webhook")
 async def handle_webhook(data: TVWebhook):
     if data.security_type != Securities.FUTURE:

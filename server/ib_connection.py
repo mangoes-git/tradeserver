@@ -1,6 +1,6 @@
 from typing import List
 
-from ib_insync import IB, Future, MarketOrder, Trade
+from ib_insync import IB, Contract, Future, MarketOrder, Trade
 import nest_asyncio
 
 from models import TradeActions, Securities
@@ -18,6 +18,7 @@ class IBConnection:
             clientId=CLIENT_ID,
             timeout=IBC_CONN_TIMEOUT,
         )
+        self.client = self._ib.client
 
     async def submit_trade(
         self,
@@ -77,6 +78,21 @@ class IBConnection:
         for p in positions:
             curr = {}
             for k, v in zip(p._fields, p):
-                curr[k] = str(v)
+                if isinstance(v, Contract):
+                    curr[k] = v.dict()
+                else:
+                    curr[k] = str(v)
             result.append(curr)
         return result
+
+    async def get_summary(self, account: str = ""):
+        return await self._ib.accountSummaryAsync()
+
+    def get_open_trades(self):
+        return self._ib.openTrades()
+
+    def get_open_orders(self):
+        return self._ib.openOrders()
+
+    def is_connected(self):
+        return self._ib.isConnected()
