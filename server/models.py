@@ -1,6 +1,7 @@
-from pydantic import BaseModel
-
 from enum import StrEnum
+from typing import Optional
+
+from pydantic import BaseModel
 
 
 class TradeActions(StrEnum):
@@ -31,15 +32,10 @@ class TVWebhook(BaseModel):
     Incoming request from TradingView's webhooks.
     """
 
-    open: float
-    high: float
-    low: float
-    close: float
+    security_type: Optional[Securities] = Securities.FUTURE
     exchange: str
     symbol: str
-    volume: int
-    time: str
-    timenow: str
     action: TradeActions
     currency: str
     quantity: int
+    last_trade_date_or_month: str
