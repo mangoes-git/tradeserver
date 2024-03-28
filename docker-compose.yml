@@ -11,11 +11,10 @@ services:
             IBC_HOST: "ib-gateway"
             IBC_PORT: 4004
             IBC_CONN_TIMEOUT: 15
-            CLIENT_ID: 123
+            CLIENT_ID: ${IBCLIENT_ID:-123}
         ports:
             - "8000:8000"
         restart: always
-
     ib-gateway:
         restart: always
         build:
