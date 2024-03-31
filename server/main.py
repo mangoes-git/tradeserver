@@ -15,6 +15,11 @@ def read_root():
     return {"Hello": "World"}
 
 
+@app.get("/favicon.ico", status_code=204)
+def favicon():
+    pass
+
+
 @app.get("/account/positions")
 def get_positions():
     return ib.get_positions()
