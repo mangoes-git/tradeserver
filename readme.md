@@ -19,3 +19,14 @@
     - `make start` to start the server application.
     - `make watch-logs` to stream the log output (live). Press `control + c` to exit.
       ![image](./assets/screenshot.png)
+
+## Configuring the server
+
+There is a script to configure the server application's connection to the IB API. In order to run it:
+
+1. Open an SSH connection to the server.
+2. Change directories into the project directory by typing `cd ~/tradeserver` and pressing enter.
+3. Type `./configure.py` to launch the configuration script and follow the instructions.
+4. Restart the server in order for the configuration to take place:
+    - Type `make stop` to stop the server.
+    - Then type `make start` to start it.
