@@ -107,3 +107,11 @@ class IBConnection:
 
     def is_connected(self):
         return self._ib.isConnected() and self.client.isReady()
+
+    def reconnect(self):
+        self._ib.connect(
+            IBC_HOST,
+            IBC_PORT,
+            clientId=CLIENT_ID,
+            timeout=IBC_CONN_TIMEOUT,
+        )

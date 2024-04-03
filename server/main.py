@@ -1,6 +1,7 @@
 from typing import Union, Optional
 
 from fastapi import FastAPI, HTTPException, Response
+from fastapi.responses import JSONResponse
 from ib_connection import IBConnection
 
 from models import TVWebhook, Securities
@@ -51,11 +52,13 @@ def get_ib_connection_status():
         connection_stats = ib.client.connectionStats()
     except Exception:
         return {
-            "is_connected": False,
+            "is_connected": ib.client.isConnected(),
+            "is_ready": ib.client.isReady(),
         }
 
     return {
         "is_connected": ib.is_connected(),
+        "is_ready": ib.client.isReady(),
         "stats": connection_stats._asdict(),
     }
 
@@ -84,3 +87,14 @@ async def handle_webhook(data: TVWebhook):
 @app.post("/test")
 def handle_test(data: TVWebhook):
     return data
+
+
+@app.post("/reconnect")
+def handle_test():
+    if not ib.is_connected():
+        ib.reconnect()
+        return {"info": "reconnected successfully"}
+    return JSONResponse(
+        status_code=400,
+        content={"info": "connection to api already exists."},
+    )
