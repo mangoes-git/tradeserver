@@ -1,4 +1,5 @@
 from typing import List
+from collections import defaultdict
 
 from ib_insync import IB, Contract, Future, MarketOrder, Trade
 import nest_asyncio
@@ -86,7 +87,13 @@ class IBConnection:
         return result
 
     async def get_summary(self, account: str = ""):
-        return await self._ib.accountSummaryAsync()
+        account_values = await self._ib.accountSummaryAsync()
+        result = defaultdict(list)
+        for av in account_values:
+            data = av._asdict()
+            data.pop("account")
+            result[av.account].append(data)
+        return result
 
     def get_open_trades(self):
         return self._ib.openTrades()
@@ -95,4 +102,13 @@ class IBConnection:
         return self._ib.openOrders()
 
     def is_connected(self):
-        return self._ib.isConnected()
+        return self._ib.isConnected() and self._ib.isReady()
+
+    def reconnect(self):
+        self._ib.disconnect()
+        self._ib.connect(
+            IBC_HOST,
+            IBC_PORT,
+            clientId=CLIENT_ID,
+            timeout=IBC_CONN_TIMEOUT,
+        )

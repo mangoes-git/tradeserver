@@ -1,6 +1,6 @@
 from typing import Union, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from ib_connection import IBConnection
 
 from models import TVWebhook, Securities
@@ -62,6 +62,8 @@ async def handle_webhook(data: TVWebhook):
             400,
             "Invalid security_type. Only the trading of futures is available.",
         )
+    if not ib.is_connected():
+        return Response(status_code=503)
     trade = await ib.submit_trade(
         sec_type=data.security_type,
         symbol=data.symbol,
