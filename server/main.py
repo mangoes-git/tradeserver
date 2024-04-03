@@ -25,6 +25,11 @@ def get_positions():
     return ib.get_positions()
 
 
+@app.get("/account/portfolio")
+def get_portfolio():
+    return ib.get_portfolio
+
+
 @app.get("/account/summary")
 async def get_account_summary():
     return await ib.get_summary()

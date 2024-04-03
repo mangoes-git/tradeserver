@@ -95,6 +95,10 @@ class IBConnection:
             result[av.account].append(data)
         return result
 
+    def get_portfolio(self, account: str = ""):
+        portfolio = self._ib.portfolio(account)
+        return [pv._asdict() for pv in portfolio]
+
     def get_open_trades(self):
         return self._ib.openTrades()
 
@@ -102,13 +106,4 @@ class IBConnection:
         return self._ib.openOrders()
 
     def is_connected(self):
-        return self._ib.isConnected() and self._ib.isReady()
-
-    def reconnect(self):
-        self._ib.disconnect()
-        self._ib.connect(
-            IBC_HOST,
-            IBC_PORT,
-            clientId=CLIENT_ID,
-            timeout=IBC_CONN_TIMEOUT,
-        )
+        return self._ib.isConnected() and self.client.isReady()
