@@ -7,8 +7,6 @@ import nest_asyncio
 from models import TradeActions, Securities
 from env import IBC_HOST, IBC_PORT, CLIENT_ID, IBC_CONN_TIMEOUT
 
-nest_asyncio.apply()
-
 
 class IBConnection:
     def __init__(self):
