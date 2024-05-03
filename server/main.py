@@ -98,3 +98,9 @@ def handle_test():
         status_code=400,
         content={"info": "connection to api already exists."},
     )
+
+
+@app.get("/robots.txt", include_in_schema=False)
+def get_robots():
+    data = ("""User-agent: *\nDisallow: /""",)
+    return data
