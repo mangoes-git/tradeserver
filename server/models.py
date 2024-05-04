@@ -49,5 +49,5 @@ class TriggerResponse(BaseModel):
 
 
 class ProxyResponse(BaseModel):
-    status = int
-    content = str
+    status: int
+    content: str
