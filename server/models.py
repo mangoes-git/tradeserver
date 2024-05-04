@@ -38,9 +38,16 @@ class TVWebhook(BaseModel):
     action: TradeActions
     currency: str
     quantity: int
+    strategy_id: str
+    position: float  # has range [-1.0, 1.0]
     last_trade_date_or_month: str
 
 
 class TriggerResponse(BaseModel):
     strategy_id: str
     position: float  # has range [-1.0, 1.0]
+
+
+class ProxyResponse(BaseModel):
+    status = int
+    content = str

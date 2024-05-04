@@ -3,10 +3,13 @@ from typing import Union, Optional
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import JSONResponse
 
-from models import TVWebhook, TriggerResponse
+from models import TVWebhook, TriggerResponse, ProxyResponse
 
+import httpx
 
 app = FastAPI()
+
+URL = "10.21.0.1:9234"
 
 
 @app.get("/")
@@ -20,8 +23,13 @@ def favicon():
 
 
 @app.post("/webhook")
-async def handle_webhook(data: TVWebhook):
-    return "ok"
+async def handle_webhook(data: TriggerResponse) -> ProxyResponse:
+    response = await httpx.post(URL, json=data)
+
+    return {
+        "status": response.status_code,
+        "content": r.text,
+    }
 
 
 @app.post("/test")
