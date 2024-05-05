@@ -48,6 +48,5 @@ class TriggerResponse(BaseModel):
     position: float  # has range [-1.0, 1.0]
 
 
-class ProxyResponse(BaseModel):
-    status: int
-    content: str
+class WSResponse(BaseModel):
+    message: str

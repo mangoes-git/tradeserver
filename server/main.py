@@ -1,15 +1,16 @@
 from typing import Union, Optional
+import asyncio
 
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import JSONResponse
 
-from models import TVWebhook, TriggerResponse, ProxyResponse
+from models import TVWebhook, TriggerResponse, WSResponse
 
-import httpx
+from websockets.sync.client import connect
 
 app = FastAPI()
 
-URL = "10.21.0.1:9234"
+URL = "ws://10.21.0.1:9234"
 
 
 @app.get("/")
@@ -23,13 +24,11 @@ def favicon():
 
 
 @app.post("/webhook")
-async def handle_webhook(data: TriggerResponse) -> ProxyResponse:
-    response = await httpx.post(URL, json=data)
-
-    return {
-        "status": response.status_code,
-        "content": r.text,
-    }
+async def handle_webhook(data: TriggerResponse) -> WSResponse:
+    with connect(URL) as websocket:
+        websocket.send(str(data))
+        message = websocket.recv()
+        return {"message": message}
 
 
 @app.post("/test")
