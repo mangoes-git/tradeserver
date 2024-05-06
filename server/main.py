@@ -3,6 +3,7 @@ import asyncio
 
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 
 from models import TVWebhook, TriggerRequest, WSResponse
 
@@ -26,7 +27,8 @@ def favicon():
 
 @app.post("/webhook")
 async def handle_webhook(data: TriggerRequest) -> WSResponse:
-    await ws.send_msg(str(data))
+    json_data = jsonable_encoder(data)
+    await ws.send_msg(str(json_data))
     message = ws.receive()
     return {
         "message": message,
