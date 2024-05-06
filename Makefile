@@ -1,7 +1,7 @@
 start:
 		docker compose up -d
 start-dev:
-		uvicorn --app-dir server main:app --reload --loop asyncio
+		uvicorn --app-dir server main:app --reload
 watch-server:
 		docker logs webhook-server --tail=50 -f
 watch-ib:

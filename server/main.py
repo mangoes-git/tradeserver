@@ -4,13 +4,14 @@ import asyncio
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import JSONResponse
 
-from models import TVWebhook, TriggerResponse, WSResponse
+from models import TVWebhook, TriggerRequest, WSResponse
 
-from websockets.sync.client import connect
-
-app = FastAPI()
+from websocket_connection import WSConnection
 
 URL = "ws://10.21.0.1:9234"
+
+app = FastAPI()
+ws = WSConnection(URL)
 
 
 @app.get("/")
@@ -24,15 +25,19 @@ def favicon():
 
 
 @app.post("/webhook")
-async def handle_webhook(data: TriggerResponse) -> WSResponse:
-    with connect(URL) as websocket:
-        websocket.send(str(data))
-        message = websocket.recv()
-        return {"message": message}
+async def handle_webhook(data: TriggerRequest) -> WSResponse:
+    await ws.send_msg(str(data))
+    message = ws.receive()
+    return {
+        "message": message,
+        "strategy_id": data.strategy_id,
+        "position": data.position,
+        "Price": data.Price,
+    }
 
 
 @app.post("/test")
-def handle_test(data: TVWebhook) -> TriggerResponse:
+def handle_test(data: TVWebhook) -> TriggerRequest:
     return {
         "strategy_id": "1234-1234",
         "position": -(1 / 3),
