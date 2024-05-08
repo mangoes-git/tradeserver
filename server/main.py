@@ -31,9 +31,8 @@ async def handle_webhook(data: TriggerRequest) -> WSResponse:
     json_data = jsonable_encoder(data)
     json_data.pop("Price")
     await ws.send_msg(json.dumps(json_data))
-    message = ws.receive()
     return {
-        "message": message,
+        "message": f"sent to f{URL}",
         "strategy_id": data.strategy_id,
         "direction": data.direction,
         "Price": data.Price,
