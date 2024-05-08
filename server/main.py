@@ -1,5 +1,6 @@
 from typing import Union, Optional
 import asyncio
+import json
 
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import JSONResponse
@@ -28,12 +29,13 @@ def favicon():
 @app.post("/webhook")
 async def handle_webhook(data: TriggerRequest) -> WSResponse:
     json_data = jsonable_encoder(data)
-    await ws.send_msg(str(json_data))
+    json_data.pop("Price")
+    await ws.send_msg(json.dumps(json_data))
     message = ws.receive()
     return {
         "message": message,
         "strategy_id": data.strategy_id,
-        "position": data.position,
+        "direction": data.direction,
         "Price": data.Price,
     }
 

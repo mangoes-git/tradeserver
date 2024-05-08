@@ -45,12 +45,12 @@ class TVWebhook(BaseModel):
 
 class TriggerRequest(BaseModel):
     strategy_id: str
-    position: float  # has range [-1.0, 1.0]
+    direction: float  # has range [-1.0, 1.0]
     Price: float
 
 
 class WSResponse(BaseModel):
     message: str
     strategy_id: str
-    position: float  # has range [-1.0, 1.0]
+    direction: float  # has range [-1.0, 1.0]
     Price: float
