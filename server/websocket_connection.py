@@ -14,7 +14,7 @@ class WSConnection:
             print(e)
             exit()
 
-    def reconnect():
+    def reconnect(self):
         print(f"attempting reconnection...")
         self.conn = connect(self.endpoint)
 
