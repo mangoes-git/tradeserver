@@ -14,12 +14,18 @@ class WSConnection:
             print(e)
             exit()
 
+    def reconnect():
+        print(f"attempting reconnection...")
+        self.conn = connect(self.endpoint)
+
     async def send_msg(self, msg):
         try:
             print(f"sending message: {msg}")
             self.conn.send(msg)
         except Exception as e:
+            print("error sending message.")
             print(e)
+            self.reconnect()
             exit()
 
     def receive(self):

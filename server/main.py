@@ -31,6 +31,11 @@ async def handle_webhook(data: TriggerRequest) -> WSResponse:
     json_data = jsonable_encoder(data)
     json_data.pop("Price")
     await ws.send_msg(json.dumps(json_data))
+    try:
+        resp = ws.receive()
+        print(f"received from websocket: {resp}")
+    except:
+        pass
     return {
         "message": f"sent to f{URL}",
         "strategy_id": data.strategy_id,
