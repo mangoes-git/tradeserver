@@ -37,7 +37,7 @@ async def handle_webhook(data: TriggerRequest) -> WSResponse:
     except:
         pass
     return {
-        "message": f"sent to f{URL}",
+        "message": f"sent to {URL}",
         "strategy_id": data.strategy_id,
         "direction": data.direction,
         "Price": data.Price,
