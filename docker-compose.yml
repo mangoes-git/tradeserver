@@ -12,4 +12,6 @@ services:
             CLIENT_ID: ${IBCLIENT_ID:-123}
         ports:
             - "8000:8000"
+        volumes:
+            - ~/logs:/code/logs
         restart: always
