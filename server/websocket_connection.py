@@ -32,7 +32,7 @@ class WSConnection:
 
     def receive(self):
         try:
-            msg = self.conn.recv(0.5)
+            msg = self.conn.recv(0.01)
             logger.info(f"received from websocket: {msg}")
         except:
             pass

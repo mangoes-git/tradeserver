@@ -20,15 +20,11 @@ from exception_handlers import (
 )
 from middleware import log_request_middleware
 
-LOGGING_CONFIG["formatters"]["default"][
-    "fmt"
-] = "%(asctime)s [%(name)s] %(levelprefix)s %(message)s"
+import env
 
-
-URL = "ws://10.21.0.1:9234"
 
 app = FastAPI()
-ws = WSConnection()
+ws = WSConnection(env.WS_URL)
 
 app.middleware("http")(log_request_middleware)
 app.add_exception_handler(RequestValidationError, request_validation_exception_handler)
@@ -53,7 +49,7 @@ async def handle_webhook(data: TriggerRequest) -> WSResponse:
     await ws.send_msg(json.dumps(json_data))
     ws.receive()
     return {
-        "message": f"sent to {URL}",
+        "message": f"sent to {env.WS_URL}",
         "strategy_id": data.strategy_id,
         "direction": data.direction,
         "Price": data.Price,

@@ -21,7 +21,11 @@ async def log_request_middleware(request: Request, call_next):
         else request.url.path
     )
     start_time = time.time()
-    data = await request.json()
+    data = {}
+    try:
+        data = await request.json()
+    except:
+        pass
     strategy_id = data.get("strategy_id")
     direction = data.get("direction")
     response = await call_next(request)
