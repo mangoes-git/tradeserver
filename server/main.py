@@ -7,6 +7,8 @@ from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
+from uvicorn.config import LOGGING_CONFIG
+
 from models import TVWebhook, TriggerRequest, WSResponse
 
 from websocket_connection import WSConnection
@@ -17,6 +19,11 @@ from exception_handlers import (
     unhandled_exception_handler,
 )
 from middleware import log_request_middleware
+
+LOGGING_CONFIG["formatters"]["default"][
+    "fmt"
+] = "%(asctime)s [%(name)s] %(levelprefix)s %(message)s"
+
 
 URL = "ws://10.21.0.1:9234"
 
@@ -44,11 +51,7 @@ async def handle_webhook(data: TriggerRequest) -> WSResponse:
     json_data = jsonable_encoder(data)
     json_data.pop("Price")
     await ws.send_msg(json.dumps(json_data))
-    try:
-        resp = ws.receive()
-        print(f"received from websocket: {resp}")
-    except:
-        pass
+    ws.receive()
     return {
         "message": f"sent to {URL}",
         "strategy_id": data.strategy_id,

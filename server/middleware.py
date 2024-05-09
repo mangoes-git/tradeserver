@@ -1,5 +1,6 @@
 import http
 import time
+import datetime
 
 from fastapi import Request
 
@@ -19,16 +20,20 @@ async def log_request_middleware(request: Request, call_next):
         else request.url.path
     )
     start_time = time.time()
+    data = await request.json()
+    strategy_id = data.get("strategy_id")
+    direction = data.get("direction")
     response = await call_next(request)
     process_time = (time.time() - start_time) * 1000
     formatted_process_time = "{0:.2f}".format(process_time)
     host = getattr(getattr(request, "client", None), "host", None)
     port = getattr(getattr(request, "client", None), "port", None)
+    timestamp = datetime.datetime.now()
     try:
         status_phrase = http.HTTPStatus(response.status_code).phrase
     except ValueError:
         status_phrase = ""
     logger.info(
-        f'{host}:{port} - "{request.method} {url}" {response.status_code} {status_phrase} {formatted_process_time}ms'
+        f'[{timestamp}] {host}:{port} - "{request.method} {url}" {response.status_code} {status_phrase} {formatted_process_time}ms [{strategy_id} | {direction}]'
     )
     return response
