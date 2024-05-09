@@ -2,7 +2,8 @@ from typing import Union, Optional
 import asyncio
 import json
 
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, Response
+from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
@@ -10,10 +11,22 @@ from models import TVWebhook, TriggerRequest, WSResponse
 
 from websocket_connection import WSConnection
 
+from exception_handlers import (
+    request_validation_exception_handler,
+    http_exception_handler,
+    unhandled_exception_handler,
+)
+from middleware import log_request_middleware
+
 URL = "ws://10.21.0.1:9234"
 
 app = FastAPI()
-ws = WSConnection(URL)
+ws = WSConnection()
+
+app.middleware("http")(log_request_middleware)
+app.add_exception_handler(RequestValidationError, request_validation_exception_handler)
+app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(Exception, unhandled_exception_handler)
 
 
 @app.get("/")
