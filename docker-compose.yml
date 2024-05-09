@@ -6,10 +6,7 @@ services:
         build: .
         container_name: webhook-server
         environment:
-            IBC_HOST: "ib-gateway"
-            IBC_PORT: 4004
-            IBC_CONN_TIMEOUT: 15
-            CLIENT_ID: ${IBCLIENT_ID:-123}
+            WS_URL: "ws://10.21.0.1:9234"
         ports:
             - "8000:8000"
         volumes:

@@ -26,7 +26,7 @@ class WSConnection:
             logger.debug(f"sending message: {msg}")
             self.conn.send(msg)
         except Exception as e:
-            log.exception("error sending message.")
+            logger.exception("error sending message.")
             self.reconnect()
             exit()
 
