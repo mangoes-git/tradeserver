@@ -1,6 +1,7 @@
 import http
 import time
 import datetime
+from zoneinfo import ZoneInfo
 
 from fastapi import Request
 
@@ -28,12 +29,12 @@ async def log_request_middleware(request: Request, call_next):
     formatted_process_time = "{0:.2f}".format(process_time)
     host = getattr(getattr(request, "client", None), "host", None)
     port = getattr(getattr(request, "client", None), "port", None)
-    timestamp = datetime.datetime.now()
+    timestamp = datetime.datetime.now(ZoneInfo("America/Toronto"))
     try:
         status_phrase = http.HTTPStatus(response.status_code).phrase
     except ValueError:
         status_phrase = ""
     logger.info(
-        f'[{timestamp}] {host}:{port} - "{request.method} {url}" {response.status_code} {status_phrase} {formatted_process_time}ms [{strategy_id} | {direction}]'
+        f'[{timestamp}] {host}:{port} - "{request.method} {url}" {response.status_code} {status_phrase} {formatted_process_time}ms [{strategy_id}, {direction}]'
     )
     return response
