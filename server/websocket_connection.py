@@ -28,7 +28,7 @@ class WSConnection:
             await self.conn.send(msg)
         except Exception as e:
             logger.exception("error sending message.")
-            self.reconnect()
+            await self.reconnect()
             exit()
 
     async def receive(self):

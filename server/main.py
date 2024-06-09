@@ -29,9 +29,9 @@ app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
 
 
-@repeat_every(seconds=2, wait_first=20)
+@repeat_every(seconds=15, wait_first=20)
 async def ws_heartbeat():
-    await ws.send_msg("KEEPALIVE_HEARTBEAT")
+    await ws.send_msg("NO_CHANGE")
 
 
 @app.on_event("startup")
