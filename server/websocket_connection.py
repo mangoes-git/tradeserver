@@ -21,7 +21,7 @@ class WSConnection:
         logger.info("attempting reconnection...")
         self.conn = connect(self.endpoint)
 
-    async def send_msg(self, msg):
+    def send_msg(self, msg):
         try:
             logger.debug(f"sending message: {msg}")
             self.conn.send(msg)

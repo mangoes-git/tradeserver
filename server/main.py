@@ -1,13 +1,10 @@
-from typing import Union, Optional
-import asyncio
 import json
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError, HTTPException
-from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
-from uvicorn.config import LOGGING_CONFIG
+from fastapi_utils.tasks import repeat_every
 
 from models import TVWebhook, TriggerRequest, WSResponse
 
@@ -32,6 +29,16 @@ app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
 
 
+@repeat_every(seconds=15)
+def ws_heartbeat():
+    ws.send_msg("KEEPALIVE_HEARTBEAT")
+
+
+@app.on_event("startup")
+async def startup_event():
+    await ws_heartbeat()
+
+
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
@@ -46,7 +53,7 @@ def favicon():
 async def handle_webhook(data: TriggerRequest) -> WSResponse:
     json_data = jsonable_encoder(data)
     json_data.pop("Price")
-    await ws.send_msg(json.dumps(json_data))
+    ws.send_msg(json.dumps(json_data))
     ws.receive()
     return {
         "message": f"sent to {env.WS_URL}",
