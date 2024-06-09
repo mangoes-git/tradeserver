@@ -1,7 +1,6 @@
-import asyncio
 import logging
 
-from websockets.sync.client import connect
+from websockets.client import connect
 
 logger = logging.getLogger("uvicorn")
 
@@ -9,30 +8,32 @@ logger = logging.getLogger("uvicorn")
 class WSConnection:
     def __init__(self, endpoint="ws://websocket-echo.com"):
         self.endpoint = endpoint
+
+    async def connect(self):
         try:
             logger.info(f"attempting to connect to {self.endpoint}")
-            self.conn = connect(self.endpoint)
+            self.conn = await connect(self.endpoint)
             logger.info("connected")
         except Exception as e:
             logger.exception("Connection error:")
             exit()
 
-    def reconnect(self):
+    async def reconnect(self):
         logger.info("attempting reconnection...")
-        self.conn = connect(self.endpoint)
+        self.conn = await connect(self.endpoint)
 
-    def send_msg(self, msg):
+    async def send_msg(self, msg):
         try:
-            logger.debug(f"sending message: {msg}")
-            self.conn.send(msg)
+            logger.info(f"sending message: {msg}")
+            await self.conn.send(msg)
         except Exception as e:
             logger.exception("error sending message.")
             self.reconnect()
             exit()
 
-    def receive(self):
+    async def receive(self):
         try:
-            msg = self.conn.recv(0.01)
+            msg = await self.conn.recv(0.01)
             logger.info(f"received from websocket: {msg}")
         except:
             pass

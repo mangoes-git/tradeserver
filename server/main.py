@@ -29,13 +29,14 @@ app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
 
 
-@repeat_every(seconds=15)
-def ws_heartbeat():
-    ws.send_msg("KEEPALIVE_HEARTBEAT")
+@repeat_every(seconds=2, wait_first=20)
+async def ws_heartbeat():
+    await ws.send_msg("KEEPALIVE_HEARTBEAT")
 
 
 @app.on_event("startup")
 async def startup_event():
+    await ws.connect()
     await ws_heartbeat()
 
 
@@ -53,8 +54,8 @@ def favicon():
 async def handle_webhook(data: TriggerRequest) -> WSResponse:
     json_data = jsonable_encoder(data)
     json_data.pop("Price")
-    ws.send_msg(json.dumps(json_data))
-    ws.receive()
+    await ws.send_msg(json.dumps(json_data))
+    await ws.receive()
     return {
         "message": f"sent to {env.WS_URL}",
         "strategy_id": data.strategy_id,
