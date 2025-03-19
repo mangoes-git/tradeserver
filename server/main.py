@@ -76,11 +76,12 @@ async def handle_webhook(data: IncomingData):
     output_rows = []
     # parse date
     current_datetime = datetime.now(timezone(timedelta(hours=8)))
+    current_date_str = current_datetime.strftime("%m/%d/%Y")
 
     output_model = OutputRow(
         **data.dict(),
-        ChinaTradeDate=current_datetime.strftime("%m/%d/%Y"),
-        ChinaStartTime=current_datetime.strftime("%m/%d/%Y %H:%M"),
+        ChinaTradeDate=current_date_str,
+        ChinaStartTime=f"{current_date_str} 9:00",
         OrderID=None,
     )
 
@@ -96,6 +97,9 @@ async def handle_webhook(data: IncomingData):
         new_row.OrderID = f"{id_counter.get_next():05}"
         output_rows.append(new_row.dict())
 
+    start_id = int(output_rows[0]["OrderID"])
+    stop_id = int(output_rows[-1]["OrderID"])
+
     csv_file = StringIO()
 
     writer = csv.DictWriter(
@@ -104,14 +108,20 @@ async def handle_webhook(data: IncomingData):
     writer.writeheader()
     writer.writerows(output_rows)
 
+    mail_subject = (
+        f"UC244 - {', '.join([str(i) for i in range(start_id, stop_id + 1)])}"
+    )
     await send_email(
         recipients=EMAIL_RECIPIENTS,
+        subject=mail_subject,
         body="test",
         file=csv_file,
     )
 
     return {
         "message": "sent email",
+        "recipients": EMAIL_RECIPIENTS,
+        "mail_subject": mail_subject,
         "data": output_rows,
     }
 

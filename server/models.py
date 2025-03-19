@@ -36,7 +36,7 @@ class IncomingData(BaseModel):
     Symbol: str
     Month: str
     Year: str
-    LimitPrice: float
+    LimitPrice: str | None
     OrderType: str
     TimeInForce: str
     Close: str | None

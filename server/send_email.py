@@ -26,13 +26,14 @@ conf = ConnectionConfig(
 
 async def send_email(
     recipients,
+    subject=None,
     body=None,
     file=None,
 ):
     file.seek(0)
     upload_file = UploadFile(filename="data.csv", file=file)
     message = MessageSchema(
-        subjet="mail subject",
+        subject=subject,
         recipients=recipients,
         body=body,
         subtype="html",
