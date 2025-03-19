@@ -5,10 +5,10 @@ services:
     trade-server:
         build: .
         container_name: webhook-server
-        environment:
-            WS_URL: "ws://10.21.0.1:9234"
+        env_file: ".env"
         ports:
             - "8000:8000"
         volumes:
             - ~/logs:/code/logs
+            - ./track_order_id:/code/track_order_id
         restart: always

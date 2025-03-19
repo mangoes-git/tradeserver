@@ -1,3 +1,8 @@
 import os
+from dotenv import load_dotenv
 
-WS_URL = os.environ.get("WS_URL", "ws://websocket-echo.com")
+
+load_dotenv()
+
+EMAIL_ADDR = os.getenv("EMAIL_ADDR")
+EMAIL_PASS = os.getenv("EMAIL_PASS")

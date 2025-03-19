@@ -1,5 +1,5 @@
 from enum import StrEnum
-from typing import Optional
+from datetime import datetime, date
 
 from pydantic import BaseModel
 
@@ -27,30 +27,23 @@ class Securities(StrEnum):
     MUTUAL_FUND = "FUND"
 
 
-class TVWebhook(BaseModel):
-    """
-    Incoming request from TradingView's webhooks.
-    """
-
-    security_type: Optional[Securities] = Securities.FUTURE
-    exchange: str
-    symbol: str
-    action: TradeActions
-    currency: str
-    quantity: int
-    strategy_id: str
-    position: float  # has range [-1.0, 1.0]
-    last_trade_date_or_month: str
-
-
-class TriggerRequest(BaseModel):
-    strategy_id: str
-    direction: float  # has range [-1.0, 1.0]
-    Price: float
+class IncomingData(BaseModel):
+    Customer: str
+    Account: str
+    BuySell: str
+    Quantity: str
+    Exchange: str
+    Symbol: str
+    Month: str
+    Year: str
+    LimitPrice: float
+    OrderType: str
+    TimeInForce: str
+    Close: str | None
+    Description: str
 
 
-class WSResponse(BaseModel):
-    message: str
-    strategy_id: str
-    direction: float  # has range [-1.0, 1.0]
-    Price: float
+class OutputRow(IncomingData):
+    ChinaTradeDate: str | None
+    OrderID: str | None
+    ChinaStartTime: str | None

@@ -26,8 +26,7 @@ async def log_request_middleware(request: Request, call_next):
         data = await request.json()
     except:
         pass
-    strategy_id = data.get("strategy_id")
-    direction = data.get("direction")
+    description = data.get("Description")
     response = await call_next(request)
     process_time = (time.time() - start_time) * 1000
     formatted_process_time = "{0:.2f}".format(process_time)
@@ -39,6 +38,6 @@ async def log_request_middleware(request: Request, call_next):
     except ValueError:
         status_phrase = ""
     logger.info(
-        f'[{timestamp}] {host}:{port} - "{request.method} {url}" {response.status_code} {status_phrase} {formatted_process_time}ms [{strategy_id}, {direction}]'
+        f'[{timestamp}] {host}:{port} - "{request.method} {url}" {response.status_code} {status_phrase} {formatted_process_time}ms [{description}]'
     )
     return response
