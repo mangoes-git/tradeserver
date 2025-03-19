@@ -25,6 +25,7 @@ conf = ConnectionConfig(
 
 
 async def send_email(
+    recipients,
     body=None,
     file=None,
 ):
@@ -32,7 +33,7 @@ async def send_email(
     upload_file = UploadFile(filename="data.csv", file=file)
     message = MessageSchema(
         subjet="mail subject",
-        recipients=["mangjieng@gmail.com"],
+        recipients=recipients,
         body=body,
         subtype="html",
         attachments=[upload_file],

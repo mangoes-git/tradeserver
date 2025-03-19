@@ -13,6 +13,8 @@ from order_id import TrackID
 
 from send_email import send_email
 
+from env import EMAIL_RECIPIENTS
+
 from exception_handlers import (
     request_validation_exception_handler,
     http_exception_handler,
@@ -101,7 +103,13 @@ async def handle_webhook(data: IncomingData):
     )
     writer.writeheader()
     writer.writerows(output_rows)
-    await send_email(body=str(output_rows), file=csv_file)
+
+    await send_email(
+        recipients=EMAIL_RECIPIENTS,
+        body="test",
+        file=csv_file,
+    )
+
     return {
         "message": "sent email",
         "data": output_rows,

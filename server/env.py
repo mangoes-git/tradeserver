@@ -6,3 +6,4 @@ load_dotenv()
 
 EMAIL_ADDR = os.getenv("EMAIL_ADDR")
 EMAIL_PASS = os.getenv("EMAIL_PASS")
+EMAIL_RECIPIENTS = os.getenv("EMAIL_RECIPIENTS").split(",")
