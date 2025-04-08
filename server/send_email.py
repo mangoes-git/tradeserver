@@ -29,9 +29,10 @@ async def send_email(
     subject=None,
     body=None,
     file=None,
+    attachment_name=None,
 ):
     file.seek(0)
-    upload_file = UploadFile(filename="data.csv", file=file)
+    upload_file = UploadFile(filename=attachment_name or "data.csv", file=file)
     message = MessageSchema(
         subject=subject,
         recipients=recipients,

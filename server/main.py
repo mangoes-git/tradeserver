@@ -11,6 +11,8 @@ from models import IncomingData, OutputRow
 
 from order_id import TrackID
 
+import utils
+
 from send_email import send_email
 
 from env import EMAIL_RECIPIENTS
@@ -22,15 +24,15 @@ from exception_handlers import (
 )
 from middleware import log_request_middleware
 
-id_counter = None
+DB = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global id_counter
-    id_counter = TrackID()
+    global DB
+    DB = TrackID()
     yield
-    id_counter.close()
+    DB.close()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -78,10 +80,14 @@ async def handle_webhook(data: IncomingData):
     current_datetime = datetime.now(timezone(timedelta(hours=8)))
     current_date_str = current_datetime.strftime("%m/%d/%Y")
 
+    default_time = (
+        "9:03" if utils.is_time_between(check_time=current_datetime.time()) else "21:03"
+    )
+    entry_type = data.Type
     output_model = OutputRow(
         **data.dict(),
         ChinaTradeDate=current_date_str,
-        ChinaStartTime=f"{current_date_str} 9:00",
+        ChinaStartTime=f"{current_date_str} {default_time}",
         OrderID=None,
     )
 
@@ -91,14 +97,11 @@ async def handle_webhook(data: IncomingData):
     quantities = output_model.Quantity.split(",")
 
     for acc, qty in zip(accounts, quantities):
-        new_row = output_model.copy(exclude={"Account", "Quantity"})
+        new_row = output_model.copy(exclude={"Account", "Quantity", "Type"})
         new_row.Account = acc
         new_row.Quantity = qty
-        new_row.OrderID = f"{id_counter.get_next():05}"
+        new_row.OrderID = f"{DB.get_next_id():05}"
         output_rows.append(new_row.dict())
-
-    start_id = int(output_rows[0]["OrderID"])
-    stop_id = int(output_rows[-1]["OrderID"])
 
     csv_file = StringIO()
 
@@ -108,14 +111,17 @@ async def handle_webhook(data: IncomingData):
     writer.writeheader()
     writer.writerows(output_rows)
 
-    mail_subject = (
-        f"UC244 - {', '.join([str(i) for i in range(start_id, stop_id + 1)])}"
+    todays_mail_number = DB.get_todays_email_number(current_datetime)
+    mail_subject = f"UC_CHINA_{current_date_str}_{todays_mail_number}"
+    attachment_name = (
+        f"{entry_type}_UC_CHINA_{current_date_str}_{todays_mail_number}.csv"
     )
     await send_email(
         recipients=EMAIL_RECIPIENTS,
         subject=mail_subject,
-        body="test",
+        body="",
         file=csv_file,
+        attachment_name=attachment_name,
     )
 
     return {

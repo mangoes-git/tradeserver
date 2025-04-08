@@ -41,6 +41,7 @@ class IncomingData(BaseModel):
     TimeInForce: str
     Close: str | None
     Description: str
+    Type: str | None
 
 
 class OutputRow(IncomingData):
