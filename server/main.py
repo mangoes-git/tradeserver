@@ -10,12 +10,13 @@ from fastapi.exceptions import RequestValidationError, HTTPException
 from models import IncomingData, OutputRow
 
 from order_id import TrackID
+from sftp_connection import SFTP_Connection
 
 import utils
 
 from send_email import send_email
 
-from env import EMAIL_RECIPIENTS
+from env import EMAIL_RECIPIENTS, SSH_HOST, SSH_USER, SSH_KEY_PATH
 
 from exception_handlers import (
     request_validation_exception_handler,
@@ -25,14 +26,22 @@ from exception_handlers import (
 from middleware import log_request_middleware
 
 DB = None
+SFTP = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global DB
+    global SFTP
     DB = TrackID()
+    SFTP = SFTP_Connection(
+        hostname=SSH_HOST,
+        username=SSH_USER,
+        key_path=SSH_KEY_PATH,
+    )
     yield
     DB.close()
+    SFTP.close()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -78,7 +87,7 @@ async def handle_webhook(data: IncomingData):
     output_rows = []
     # parse date
     current_datetime = datetime.now(timezone(timedelta(hours=8)))
-    current_date_str = current_datetime.strftime("%m/%d/%Y")
+    current_date_str = current_datetime.strftime("%m-%d-%Y")
 
     default_time = (
         "9:03" if utils.is_time_between(check_time=current_datetime.time()) else "21:03"
@@ -116,6 +125,9 @@ async def handle_webhook(data: IncomingData):
     attachment_name = (
         f"{entry_type}_UC_CHINA_{current_date_str}_{todays_mail_number}.csv"
     )
+
+    SFTP.put(csv_file, f"./{attachment_name}")
+
     await send_email(
         recipients=EMAIL_RECIPIENTS,
         subject=mail_subject,
