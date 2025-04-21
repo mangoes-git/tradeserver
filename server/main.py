@@ -16,7 +16,7 @@ import utils
 
 from send_email import send_email
 
-from env import EMAIL_RECIPIENTS, SSH_HOST, SSH_USER, SSH_KEY_PATH
+from env import EMAIL_RECIPIENTS, SSH_HOST, SSH_USER, SSH_KEY_PATH, SFTP_PATH
 
 from exception_handlers import (
     request_validation_exception_handler,
@@ -126,7 +126,7 @@ async def handle_webhook(data: IncomingData):
         f"{entry_type}_UC_CHINA_{current_date_str}_{todays_mail_number}.csv"
     )
 
-    SFTP.put(csv_file, f"./{attachment_name}")
+    SFTP.put(csv_file, attachment_name, remotedir=SFTP_PATH)
 
     await send_email(
         recipients=EMAIL_RECIPIENTS,

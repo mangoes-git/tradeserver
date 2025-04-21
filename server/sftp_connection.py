@@ -1,5 +1,4 @@
 import paramiko
-from io import StringIO
 
 
 class SFTP_Connection:
@@ -15,8 +14,9 @@ class SFTP_Connection:
     def list_files(self, path="."):
         return self.sftp.listdir(path)
 
-    def put(self, filelike, remotepath):
-        self.sftp.putfo(filelike, remotepath)
+    def put(self, filelike, filename, remotedir="/."):
+        remotepath = f"{remotedir}/{filename}"
+        return self.sftp.putfo(filelike, remotepath)
 
     def close(self):
         self.sftp.close()

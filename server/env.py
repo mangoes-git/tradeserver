@@ -13,3 +13,4 @@ SSH_USER = os.getenv("SSH_USER")
 SSH_KEY_PATH = os.getenv(
     "SSH_KEY_PATH",
 )
+SFTP_PATH = os.getenv("SFTP_PATH")
