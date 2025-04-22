@@ -16,7 +16,7 @@ import utils
 
 from send_email import send_email
 
-from env import EMAIL_RECIPIENTS, SSH_HOST, SSH_USER, SSH_KEY_PATH, SFTP_PATH
+from env import EMAIL_RECIPIENTS, SSH_HOST, SSH_USER, SSH_KEY_PATH, SFTP_PATH, SSH_HOST_2, SSH_USER_2, SFTP_PATH_2
 
 from exception_handlers import (
     request_validation_exception_handler,
@@ -26,22 +26,32 @@ from exception_handlers import (
 from middleware import log_request_middleware
 
 DB = None
-SFTP = None
+SFTP_CONNS = []
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global DB
-    global SFTP
+    global SFTP_CONNS
     DB = TrackID()
-    SFTP = SFTP_Connection(
+    SFTP_CONNS += [
+        SFTP_Connection(
         hostname=SSH_HOST,
         username=SSH_USER,
         key_path=SSH_KEY_PATH,
-    )
+        base_dir=SFTP_PATH,
+    ),
+        SFTP_Connection(
+        hostname=SSH_HOST_2,
+        username=SSH_USER_2,
+        key_path=SSH_KEY_PATH,
+        base_dir=SFTP_PATH_2,
+    ),
+    ]
     yield
     DB.close()
-    SFTP.close()
+    for conn in SFTP_CONNS:
+        conn.close()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -126,12 +136,18 @@ async def handle_webhook(data: IncomingData):
         f"{entry_type}_UC_CHINA_{current_date_str}_{todays_mail_number}.csv"
     )
 
-    SFTP.put(csv_file, attachment_name, remotedir=SFTP_PATH)
+    errors = []
+    for sftp in SFTP_CONNS:
+        try:
+            sftp.put(csv_file, attachment_name)
+        except Exception as e:
+            errors.append(f"Error delivering {attachment_name} to {sftp.hostname}")
+            print(e)
 
     await send_email(
         recipients=EMAIL_RECIPIENTS,
         subject=mail_subject,
-        body="",
+        body=str(errors or "Delivered"),
         file=csv_file,
         attachment_name=attachment_name,
     )
