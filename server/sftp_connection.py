@@ -16,7 +16,7 @@ class SFTP_Connection:
         self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         
         self.ssh_client.connect(self.hostname, self.port, self.username, pkey=self.key)
-        self.ssh_client.get_transport().set_keepalive(90) #seconds
+        self.ssh_client.get_transport().set_keepalive(60) #seconds
 
         self.sftp = self.ssh_client.open_sftp()
 
@@ -28,6 +28,13 @@ class SFTP_Connection:
             remotedir = self.base_dir
         remotepath = f"{remotedir}/{filename}"
         return self.sftp.putfo(filelike, remotepath)
+
+    def is_connected(self):
+        try:
+            self.list_files()
+        except OSError:
+            return False
+        return True
 
     def close(self):
         self.sftp.close()

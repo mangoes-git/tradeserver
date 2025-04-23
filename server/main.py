@@ -138,6 +138,8 @@ async def handle_webhook(data: IncomingData):
 
     errors = []
     for sftp in SFTP_CONNS:
+        if not sftp.is_connected():
+            sftp.connect()
         try:
             sftp.put(csv_file, attachment_name)
         except Exception as e:
