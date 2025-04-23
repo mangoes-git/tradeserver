@@ -27,6 +27,7 @@ class SFTP_Connection:
         if remotedir is None:
             remotedir = self.base_dir
         remotepath = f"{remotedir}/{filename}"
+        filelike.seek(0)
         return self.sftp.putfo(filelike, remotepath)
 
     def is_connected(self):
